@@ -1,0 +1,79 @@
+server:
+  port: 8080
+
+
+spring:
+  application:
+    name: tradenest
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tradenest_db
+    username: tradenest_user
+    password: tradenest_pass
+    driver-class-name: org.postgresql.Driver
+
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+app:
+  jwt:
+
+    secret: ${JWT_SECRET:c2hvdWxkLWJlLWEtbG9uZy1yYW5kb20tYmFzZTY0LXNlY3JldC1mb3ItZGV2LW9ubHk=}
+    expiration-ms: 86400000
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    com.aakash.tradenest: DEBUG
+    org.springframework.security: INFO
+
+
+
+## ----------------------------
+## DATABASE CONNECTION
+## ----------------------------
+#spring.datasource.url=jdbc:postgresql://localhost:5432/tradenest_db
+#spring.datasource.username=tradenest_user
+#spring.datasource.password=tradenest_pass
+#spring.datasource.driver-class-name=org.postgresql.Driver
+#
+#
+#
+#app.jwt.secret = c2hvdWxkLWJlLWEtbG9uZy1yYW5kb20tYmFzZTY0LXNlY3JldC1mb3ItZGV2LW9ubHk=
+#app.jwt.expiration-ms = 86400000
+#
+#
+## ----------------------------
+## JPA / HIBERNATE SETTINGS
+## ----------------------------
+#spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+#
+## This will auto-create/update tables if missing
+#spring.jpa.hibernate.ddl-auto=create
+#
+## Show SQL in logs (for debugging)
+#spring.jpa.show-sql=true
+#spring.jpa.properties.hibernate.format_sql=true
+#
+## ----------------------------
+## SCHEMA FIX (if not public)
+## ----------------------------
+#spring.jpa.properties.hibernate.default_schema=public
+#
+## ----------------------------
+## CASE SENSITIVITY FIX
+## ----------------------------
+#spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+#
+## ----------------------------
+## SERVER PORT (optional)
+## ----------------------------
+#server.port=8080
