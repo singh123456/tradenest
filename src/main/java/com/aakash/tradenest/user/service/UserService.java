@@ -4,6 +4,7 @@ import com.aakash.tradenest.user.dto.UserProfileResponse;
 import com.aakash.tradenest.user.entity.User;
 import com.aakash.tradenest.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,4 +19,9 @@ public class UserService {
         return UserProfileResponse.from(user);
     }
 
+    public Long getCurrentUserId(String email){
+        return userRepository.findByEmail(email)
+                .orElseThrow(()-> new UsernameNotFoundException("User not found: " + email))
+                .getId();
+    }
 }
