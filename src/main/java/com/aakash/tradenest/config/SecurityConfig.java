@@ -29,8 +29,9 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
 
     private static final String[] PUBLIC_ENDPOINTS = {
-         "/api/auth/**",
-         "/actuator/health"
+            "/api/auth/**",
+            "/api/stocks/**",
+            "/actuator/health"
     };
 
     @Bean
