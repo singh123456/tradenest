@@ -37,6 +37,12 @@ public class GlobalExceptionHandler {
                 .body(ApiError.of(HttpStatus.CONFLICT.value(),"Conflict",ex.getMessage()));
     }
 
+    @ExceptionHandler(StockNotFoundException.class)
+    public ResponseEntity<ApiError> handleStockNotFound(StockNotFoundException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of(HttpStatus.NOT_FOUND.value(), "Not Found",ex.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex){
         List<String> details = ex.getBindingResult().getFieldErrors().stream()
