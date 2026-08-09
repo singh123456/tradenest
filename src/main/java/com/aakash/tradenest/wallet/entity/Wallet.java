@@ -26,7 +26,7 @@ public class Wallet {
     @JoinColumn(name = "user_id",nullable = false,unique = true)
     private User user;
 
-    @Column(nullable = false,precision = 19,scale = 4)
+    @Column(nullable = false,precision = 19,scale = 2)
     private BigDecimal balance;
 
     @Column(name = "created_at",nullable = false, updatable = false)
