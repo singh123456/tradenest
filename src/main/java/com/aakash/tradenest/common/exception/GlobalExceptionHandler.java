@@ -48,6 +48,18 @@ public class GlobalExceptionHandler {
                 .body(ApiError.of(HttpStatus.NOT_FOUND.value(),"Not Found",ex.getMessage()));
     }
 
+    @ExceptionHandler(HoldingNotFoundException.class)
+    public ResponseEntity<ApiError> handleHoldingNotFoundException(HoldingNotFoundException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of(HttpStatus.NO_CONTENT.value(), "Not Found" , ex.getMessage()));
+    }
+
+    @ExceptionHandler(InsufficientHoldingException.class)
+    public ResponseEntity<ApiError> handleInsufficientHoldingException(InsufficientHoldingException ex){
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiError.of(HttpStatus.CONFLICT.value(), "Conflict", ex.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex){
         List<String> details = ex.getBindingResult().getFieldErrors().stream()

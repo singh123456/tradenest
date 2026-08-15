@@ -6,23 +6,29 @@ import com.aakash.tradenest.order.entity.Trade;
 import com.aakash.tradenest.order.matching.OrderMatchingEngine;
 import com.aakash.tradenest.order.repository.OrderRepository;
 import com.aakash.tradenest.order.repository.TradeRepository;
+import com.aakash.tradenest.portfolio.entity.Holding;
+import com.aakash.tradenest.portfolio.repository.HoldingRepository;
 import com.aakash.tradenest.stock.entity.Stock;
 import com.aakash.tradenest.stock.repository.StockRepository;
 import com.aakash.tradenest.user.dto.RegisterRequest;
 import com.aakash.tradenest.user.entity.User;
 import com.aakash.tradenest.user.repository.UserRepository;
 import com.aakash.tradenest.wallet.service.WalletService;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -59,6 +65,9 @@ public class OrderFlowIntegrationTest {
 
     @Autowired
     private TradeRepository tradeRepository;
+
+    @Autowired
+    private HoldingRepository holdingRepository;
 
     @Test
     void placeOrder_withSufficientBalance_returnsCreated() throws Exception{
@@ -271,11 +280,23 @@ public class OrderFlowIntegrationTest {
 
 
 
-        stockRepository.save(Stock.builder()
+      Stock stock =  stockRepository.save(Stock.builder()
                 .symbol("TESTSTOCK")
                 .name("Test Stock Inc")
                 .currentPrice(new BigDecimal("100"))
                 .build());
+
+      User seller = userRepository.findById(sellerId)
+              .orElseThrow();
+
+      holdingRepository.save(
+              Holding.builder()
+                      .user(seller)
+                      .stock(stock)
+                      .quantity(10L)
+                      .avgBuyPrice(new BigDecimal("90"))
+                      .build()
+      );
 
 
         String sellJson = """

@@ -6,6 +6,7 @@ import com.aakash.tradenest.order.entity.OrderStatus;
 import com.aakash.tradenest.order.entity.Trade;
 import com.aakash.tradenest.order.repository.OrderRepository;
 import com.aakash.tradenest.order.repository.TradeRepository;
+import com.aakash.tradenest.portfolio.service.PortfolioService;
 import com.aakash.tradenest.wallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ public class OrderMatchingEngine {
     private final OrderRepository orderRepository;
     private final TradeRepository tradeRepository;
     private final WalletService walletService;
+    private final PortfolioService portfolioService;
 
     public void processNewOrder(Order incomingOrder){
         OrderBook orderBook = orderBookManager.getOrCreateBook(incomingOrder.getStock().getSymbol());
@@ -118,7 +120,9 @@ public class OrderMatchingEngine {
 
 
         walletService.debit(buyOrder.getUser().getId(), tradeValue);
+        portfolioService.updateHoldingOnBuy(buyOrder.getUser().getId(), buyOrder.getStock(), matchQuantity, matchPrice);
         walletService.credit(sellOrder.getUser().getId(), tradeValue);
+        portfolioService.updateHoldingOnSell(sellOrder.getUser().getId(), sellOrder.getStock(), matchQuantity);
 
         orderRepository.save(buyOrder);
         orderRepository.save(sellOrder);
