@@ -1,6 +1,7 @@
 package com.aakash.tradenest.order.service;
 
 import com.aakash.tradenest.common.exception.InsufficientBalanceException;
+import com.aakash.tradenest.common.exception.InsufficientHoldingException;
 import com.aakash.tradenest.common.exception.OrderNotFoundException;
 import com.aakash.tradenest.common.exception.StockNotFoundException;
 import com.aakash.tradenest.order.entity.Order;
@@ -9,6 +10,8 @@ import com.aakash.tradenest.order.entity.OrderStatus;
 import com.aakash.tradenest.order.entity.OrderType;
 import com.aakash.tradenest.order.matching.OrderMatchingEngine;
 import com.aakash.tradenest.order.repository.OrderRepository;
+import com.aakash.tradenest.portfolio.entity.Holding;
+import com.aakash.tradenest.portfolio.service.PortfolioService;
 import com.aakash.tradenest.stock.entity.Stock;
 import com.aakash.tradenest.stock.repository.StockRepository;
 import com.aakash.tradenest.user.entity.User;
@@ -31,6 +34,8 @@ public class OrderService {
     private final WalletService walletService;
     private final UserRepository userRepository;
     private final OrderMatchingEngine orderMatchingEngine;
+    private final PortfolioService portfolioService;
+
 
     @Transactional
     public Order placeOrder(Long userId, String symbol, OrderSide side,
@@ -50,7 +55,11 @@ public class OrderService {
                 throw new InsufficientBalanceException("Insufficient balance to place this order");
             }
         }else{
-            // TODO: validate holdings one Portfolio Service exists
+            Holding holding = portfolioService.getHoldingForSymbol(userId, stock);
+
+            if(holding.getQuantity() < quantity){
+                throw new InsufficientHoldingException("Holding of this stock is not enough to process this order");
+            }
         }
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new UsernameNotFoundException("User is not valid user"));
