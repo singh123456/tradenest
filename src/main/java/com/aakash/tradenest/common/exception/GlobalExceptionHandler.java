@@ -60,6 +60,12 @@ public class GlobalExceptionHandler {
                 .body(ApiError.of(HttpStatus.CONFLICT.value(), "Conflict", ex.getMessage()));
     }
 
+    @ExceptionHandler(OrderCancellationNotAllowedException.class)
+    public ResponseEntity<ApiError> handleOrderCancellationNotAllowedException(OrderCancellationNotAllowedException ex){
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiError.of(HttpStatus.CONTINUE.value(), "Conflict", ex.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex){
         List<String> details = ex.getBindingResult().getFieldErrors().stream()

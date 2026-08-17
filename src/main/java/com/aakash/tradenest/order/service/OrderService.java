@@ -1,9 +1,6 @@
 package com.aakash.tradenest.order.service;
 
-import com.aakash.tradenest.common.exception.InsufficientBalanceException;
-import com.aakash.tradenest.common.exception.InsufficientHoldingException;
-import com.aakash.tradenest.common.exception.OrderNotFoundException;
-import com.aakash.tradenest.common.exception.StockNotFoundException;
+import com.aakash.tradenest.common.exception.*;
 import com.aakash.tradenest.order.entity.Order;
 import com.aakash.tradenest.order.entity.OrderSide;
 import com.aakash.tradenest.order.entity.OrderStatus;
@@ -88,5 +85,27 @@ public class OrderService {
     public Order getOrderById(Long userId, Long id) {
         return orderRepository.findByUserIdAndId(userId,id)
                 .orElseThrow(()->new OrderNotFoundException("Order not found with id " +id));
+    }
+
+    @Transactional
+    public Order cancelOrder(Long userId, Long orderId){
+
+        Order order = orderRepository.findByUserIdAndId(userId, orderId)
+                .orElseThrow(()->
+                        new OrderNotFoundException(
+                                "Order not found with id " + orderId
+                        )
+                        );
+
+        if(order.getStatus() != OrderStatus.OPEN && order.getStatus() != OrderStatus.FILLED){
+            throw new OrderCancellationNotAllowedException(
+                    "Order cannot be cancelled in status " + order.getStatus()
+            );
+        }
+
+        orderMatchingEngine.cancelOrder(order);
+
+        order.setStatus(OrderStatus.CANCELLED);
+        return orderRepository.save(order);
     }
 }
