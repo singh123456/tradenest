@@ -137,4 +137,18 @@ public class OrderMatchingEngine {
         }
     }
 
+    public void cancelOrder(Order order){
+
+        OrderBook orderBook = orderBookManager
+                .getOrCreateBook(order.getStock().getSymbol());
+
+        orderBook.lock();
+
+        try{
+            orderBook.removeOrder(order);
+        }finally {
+            orderBook.unlock();
+        }
+    }
+
 }

@@ -69,4 +69,16 @@ public class OrderController {
 
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<OrderResponse> cancelOrder(
+            @AuthenticationPrincipal UserDetails principal,
+            @PathVariable Long id
+    ){
+        Long userId = userService.getCurrentUserId(principal.getUsername());
+        Order order = orderService.cancelOrder(userId,id);
+
+        OrderResponse response = orderMapper.toResponse(order);
+        return ResponseEntity.ok(response);
+    }
 }
