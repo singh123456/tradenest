@@ -11,7 +11,13 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
 
     List<Order> findByUserId(Long userId);
 
-    List<Order> findByStock_SymbolAndStatusIn(String symbol, List<OrderStatus> statuses);
+    List<Order> findByStock_SymbolAndStatusIn(
+            String symbol,
+            List<OrderStatus> statuses
+    );
 
     Optional<Order> findByUserIdAndId(Long userId, Long id);
+
+    List<Order> findByStatusIn(
+            List<OrderStatus> statuses);
 }
