@@ -8,11 +8,13 @@ import com.aakash.tradenest.order.repository.OrderRepository;
 import com.aakash.tradenest.order.repository.TradeRepository;
 import com.aakash.tradenest.portfolio.service.PortfolioService;
 import com.aakash.tradenest.wallet.service.WalletService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -148,6 +150,25 @@ public class OrderMatchingEngine {
             orderBook.removeOrder(order);
         }finally {
             orderBook.unlock();
+        }
+    }
+
+    @PostConstruct
+    public void restoreOpenOrders(){
+
+        List<Order> restingOrders = orderRepository.findByStatusIn(
+                List.of(
+                        OrderStatus.OPEN,
+                        OrderStatus.PARTIALLY_FILLED
+                )
+        );
+
+        for(Order order: restingOrders){
+
+            OrderBook orderBook = orderBookManager
+                    .getOrCreateBook(order.getStock().getSymbol());
+
+            orderBook.addOrder(order);
         }
     }
 
