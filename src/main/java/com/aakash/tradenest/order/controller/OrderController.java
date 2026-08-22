@@ -1,10 +1,14 @@
 package com.aakash.tradenest.order.controller;
 
 
+import com.aakash.tradenest.order.dto.OrderBookDepthResponse;
 import com.aakash.tradenest.order.dto.OrderResponse;
 import com.aakash.tradenest.order.dto.PlaceOrderRequest;
+import com.aakash.tradenest.order.dto.PriceLevel;
 import com.aakash.tradenest.order.entity.Order;
 import com.aakash.tradenest.order.mapper.OrderMapper;
+import com.aakash.tradenest.order.matching.OrderBook;
+import com.aakash.tradenest.order.matching.OrderBookManager;
 import com.aakash.tradenest.order.service.OrderService;
 import com.aakash.tradenest.user.service.UserService;
 import jakarta.validation.Valid;
@@ -25,6 +29,7 @@ public class OrderController {
     private final OrderService orderService;
     private final UserService userService;
     private final OrderMapper orderMapper;
+    private final OrderBookManager orderBookManager;
 
     @PostMapping
     public ResponseEntity<OrderResponse> placeOrder(
@@ -70,7 +75,7 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<OrderResponse> cancelOrder(
             @AuthenticationPrincipal UserDetails principal,
             @PathVariable Long id
@@ -79,6 +84,21 @@ public class OrderController {
         Order order = orderService.cancelOrder(userId,id);
 
         OrderResponse response = orderMapper.toResponse(order);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/book/{symbol}")
+    public ResponseEntity<OrderBookDepthResponse> getOrderBookDepth(@PathVariable String symbol){
+        OrderBook orderBook = orderBookManager.getOrCreateBook(symbol);
+
+        List<PriceLevel> buyLevels = orderBook.getBuyDepth();
+        List<PriceLevel> sellLevels = orderBook.getSellDepth();
+
+        OrderBookDepthResponse response = new OrderBookDepthResponse(
+                symbol,
+                buyLevels,
+                sellLevels
+        );
         return ResponseEntity.ok(response);
     }
 }
