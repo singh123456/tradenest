@@ -91,4 +91,11 @@ public class GlobalExceptionHandler {
                 .body(ApiError.of(HttpStatus.CONFLICT.value(),"Conflict",
                         "This wallet was updated concurrently. Please retry the request"));
     }
+
+    @ExceptionHandler(WatchlistEntryNotFoundException.class)
+    public ResponseEntity<ApiError> handleWatchlistEntryNotFoundException(WatchlistEntryNotFoundException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of(HttpStatus.NOT_FOUND.value(), "Not Found",
+                        "This Stock is not present in your watchlist"));
+    }
 }
