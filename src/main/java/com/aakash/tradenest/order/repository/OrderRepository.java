@@ -20,4 +20,6 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
 
     List<Order> findByStatusIn(
             List<OrderStatus> statuses);
+
+    List<Order> findByUser_IdAndStock_IdAndStatusIn(Long userId, Long stockId, List<OrderStatus> statuses);
 }

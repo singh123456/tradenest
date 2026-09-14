@@ -97,14 +97,19 @@ public class OrderService {
                         )
                         );
 
-        if(order.getStatus() != OrderStatus.OPEN && order.getStatus() != OrderStatus.FILLED){
+        if(order.getStatus() != OrderStatus.OPEN){
             throw new OrderCancellationNotAllowedException(
                     "Order cannot be cancelled in status " + order.getStatus()
             );
         }
 
-        orderMatchingEngine.cancelOrder(order);
+        boolean removed = orderMatchingEngine.cancelOrder(order);
 
+        if(!removed){
+            throw new OrderCancellationNotAllowedException(
+                    "Order is no longer active in the order book"
+            );
+        }
         order.setStatus(OrderStatus.CANCELLED);
         return orderRepository.save(order);
     }

@@ -79,19 +79,14 @@ public class OrderBook {
         }
     }
 
-    public void removeOrder(Order order){
-        lock.lock();
-        try {
+    public boolean removeOrder(Order order){
+            PriorityQueue<Order> queue =
+                    order.getSide() == OrderSide.BUY
+                    ? buyOrders
+                            : sellOrders;
 
+           return queue.removeIf(o-> o.getId().equals(order.getId()));
 
-            if (order.getSide() == OrderSide.SELL) {
-                sellOrders.remove(order);
-            } else {
-                buyOrders.remove(order);
-            }
-        }finally {
-            lock.unlock();
-        }
     }
 
     public List<PriceLevel> getBuyDepth(){
