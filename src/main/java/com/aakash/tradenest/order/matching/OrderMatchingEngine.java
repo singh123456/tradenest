@@ -154,6 +154,19 @@ public class OrderMatchingEngine {
         }
     }
 
+    public void forceCancelOrder(Order order){
+        OrderBook orderBook = orderBookManager.getOrCreateBook(order.getStock().getSymbol());
+        orderBook.lock();
+        try{
+            orderBook.removeOrder(order);
+        }finally {
+            orderBook.unlock();
+        }
+
+        order.setStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+    }
+
     @PostConstruct
     public void restoreOpenOrders(){
 

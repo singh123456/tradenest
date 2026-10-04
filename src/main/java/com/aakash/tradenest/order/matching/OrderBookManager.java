@@ -16,4 +16,8 @@ public class OrderBookManager {
     public OrderBook getOrCreateBook(String symbol){
         return books.computeIfAbsent(symbol, s-> new OrderBook());
     }
+
+    public void clearAllBooks(){
+        books.clear();
+    }
 }

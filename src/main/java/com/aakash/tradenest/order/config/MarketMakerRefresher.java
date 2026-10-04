@@ -1,9 +1,11 @@
 package com.aakash.tradenest.order.config;
 
+import com.aakash.tradenest.common.exception.OrderCancellationNotAllowedException;
 import com.aakash.tradenest.order.entity.Order;
 import com.aakash.tradenest.order.entity.OrderSide;
 import com.aakash.tradenest.order.entity.OrderStatus;
 import com.aakash.tradenest.order.entity.OrderType;
+import com.aakash.tradenest.order.matching.OrderMatchingEngine;
 import com.aakash.tradenest.order.repository.OrderRepository;
 import com.aakash.tradenest.order.service.OrderService;
 import com.aakash.tradenest.stock.entity.Stock;
@@ -15,6 +17,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 
@@ -28,6 +31,7 @@ public class MarketMakerRefresher {
     private final StockRepository stockRepository;
     private final OrderRepository orderRepository;
     private final OrderService orderService;
+    private final OrderMatchingEngine orderMatchingEngine;
 
     @Scheduled(fixedRate = 20000)
     public void refreshLiquidity(){
@@ -42,16 +46,11 @@ public class MarketMakerRefresher {
             );
 
             for(Order order: stale){
-                try{
-                    orderService.cancelOrder(marketMaker.getId(), order.getId());
-                }catch (Exception e){
-                    System.err.println("Failed to cancel market maker order " + order.getId() + ": " + e.getMessage());
-                    e.printStackTrace();
-                }
+                orderMatchingEngine.forceCancelOrder(order);
             }
 
-            BigDecimal askPrice = stock.getCurrentPrice().multiply(new BigDecimal("1.01"));
-            BigDecimal bidPrice = stock.getCurrentPrice().multiply(new BigDecimal("0.99"));
+            BigDecimal askPrice = stock.getCurrentPrice().multiply(new BigDecimal("1.01")).setScale(2, RoundingMode.HALF_UP);
+            BigDecimal bidPrice = stock.getCurrentPrice().multiply(new BigDecimal("0.99")).setScale(2, RoundingMode.HALF_UP);
 
             orderService.placeOrder(marketMaker.getId(), stock.getSymbol(), OrderSide.SELL,
                     OrderType.LIMIT, 5000L, askPrice);
